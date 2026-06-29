@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NexBank Mobile — Premium Ecosystem</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+        :root {
+            --bg:#080808; --bg2:#0e0e0e; --bg3:#141414;
+            --card:#181818; --card2:#202020;
+            --gold:#c9a84c; --gold2:#f0d080;
+            --purple:#7c3aed; --purple2:#9333ea;
+            --rose:#e879a0;
+            --text:#f5f5f5; --text2:#777; --text3:#333;
+            --border:rgba(255,255,255,0.07);
+            --r:18px; --rs:14px;
+        }
+
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+        html,body{font-family:'Inter',sans-serif;background:#0d0d0d;color:var(--text);height:100%;overflow:hidden;user-select:none;}
+        body{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+
+        /* PHONE SHELL */
+        .shell{
+            width:390px;height:844px;
+            background:#000;
+            border-radius:54px;
+            border:2px solid #222;
+            box-shadow:0 0 0 1px #111,0 40px 120px rgba(107,33,168,.35),0 60px 180px rgba(0,0,0,.9),inset 0 0 0 2px #1a1a1a;
+            position:relative;overflow:hidden;
+            display:flex;flex-direction:column;
+            flex-shrink:0;
+        }
+
+        /* NOTCH */
+        .notch{
+            position:absolute;top:0;left:50%;transform:translateX(-50%);
+            width:120px;height:34px;background:#000;
+            border-radius:0 0 20px 20px;z-index:100;
+            display:flex;align-items:center;justify-content:center;gap:8px;
+        }
+        .notch-cam, .ncam{width:12px;height:12px;border-radius:50%;background:#1a1a1a;border:1px solid #222;}
+        .notch-spk, .nspk{width:50px;height:5px;border-radius:3px;background:#1a1a1a;}
+
+        /* STATUS BAR */
+        .statusbar, .sbar{
+            height:44px;padding:12px 28px 0;
+            display:flex;align-items:center;justify-content:space-between;
+            flex-shrink:0;position:relative;z-index:50;
+        }
+        .s-time, .stime{font-size:15px;font-weight:600;letter-spacing:-.3px;}
+        .s-icons, .sicons{display:flex;align-items:center;gap:5px;font-size:11px;}
+        .batt{width:24px;height:11px;border:1.5px solid rgba(255,255,255,.55);border-radius:3px;position:relative;display:flex;align-items:center;padding:1.5px;}
+        .batt::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:2.5px;height:5px;background:rgba(255,255,255,.35);border-radius:0 1px 1px 0;}
+        .batt-f, .battf{height:100%;width:75%;background:#fff;border-radius:1.5px;}
+
+        /* SCREENS CONTAINER */
+        .screens{flex:1;overflow:hidden;position:relative;}
+        .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;opacity:0;pointer-events:none;transition:opacity .3s, transform .3s;transform:translateX(30px);-webkit-overflow-scrolling:touch;}
+        .screen.on{opacity:1;pointer-events:all;transform:translateX(0);}
+        .screen.out{opacity:0;transform:translateX(-30px);}
+        .screen::-webkit-scrollbar{display:none;}
+
+        /* NAVIGATION BAR */
+        .bnav{
+            height:80px;background:var(--bg2);border-top:1px solid var(--border);
+            display:flex;align-items:flex-start;padding-top:10px;
+            flex-shrink:0;position:relative;z-index:50;
+        }
+        .ntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;}
+        .ntab-i{font-size:22px;transition:transform .2s;}
+        .ntab-l{font-size:10px;font-weight:600;color:var(--text2);}
+        .ntab-d{width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:0;transition:opacity .2s;margin-top:-1px;}
+        .ntab.on .ntab-l{color:var(--gold);}
+        .ntab.on .ntab-i{transform:scale(1.15);}
+        .ntab.on .ntab-d{opacity:1;}
+
+        /* ──────── SPLASH SCREEN ──────── */
+        #splash{background:#060606;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+        .splash-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,#1f0840 0%,#0a0418 45%,#060308 100%)}
+        .ring{position:absolute;border-radius:50%;border:1px solid rgba(107,33,168,.2);top:50%;left:50%;transform:translate(-50%,-50%);animation:rpulse 3s ease-in-out infinite;}
+        .ring:nth-child(1){width:600px;height:600px;animation-delay:0s;}
+        .ring:nth-child(2){width:450px;height:450px;border-color:rgba(201,168,76,.15);animation-delay:.5s;}
+        .ring:nth-child(3){width:300px;height:300px;border-color:rgba(232,121,160,.1);animation-delay:1s;}
+        @keyframes rpulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1);}50%{opacity:.7;transform:translate(-50%,-50%) scale(1.04);}}
+
+        .splash-card-wrap{position:relative;z-index:2;perspective:900px;margin-bottom:40px;}
+        .splash-card{
+            width:300px;height:185px;border-radius:22px;
+            background:linear-gradient(135deg,#1a0a2e 0%,#2d1060 30%,#1a0a2e 55%,#0e0618 80%,#1f0b38 100%);
+            border:1px solid rgba(201,168,76,.4);
+            box-shadow:0 0 60px rgba(107,33,168,.5),0 0 120px rgba(107,33,168,.18),0 20px 60px rgba(0,0,0,.8),inset 0 1px 0 rgba(201,168,76,.2);
+            position:relative;overflow:hidden;animation:cfloat 4s ease-in-out infinite;cursor:pointer;
+        }
+        .sc-aura{position:absolute;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(147,51,234,.3) 0%,transparent 70%);top:-80px;right:-50px;pointer-events:none;}
+        .sc-aura2{position:absolute;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.12) 0%,transparent 70%);bottom:-30px;left:-10px;pointer-events:none;}
+        .sc-shine{position:absolute;inset:0;background:linear-gradient(125deg,transparent 0%,rgba(201,168,76,.06) 40%,rgba(255,255,255,.03) 50%,transparent 65%);pointer-events:none;}
+        .sc-logo{position:absolute;top:18px;left:20px;display:flex;align-items:center;gap:7px;}
+        .sc-logo-i{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#c9a84c,#f0d080);display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 10px rgba(201,168,76,.5);}
+        .sc-logo-t{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:#f0d080;text-shadow:0 0 14px rgba(240,208,128,.4);}
+        .sc-brand{position:absolute;top:16px;right:18px;display:flex;}
+        .sc-brand span{width:20px;height:20px;border-radius:50%;}
+        .sc-brand span:first-child{background:rgba(201,168,76,.75);margin-right:-7px;}
+        .sc-brand span:last-child{background:rgba(147,51,234,.75);}
+        .sc-chip{position:absolute;top:52px;left:20px;width:34px;height:26px;border-radius:5px;background:linear-gradient(135deg,#c9a84c,#f0d080,#a07030);overflow:hidden;}
+        .sc-chip::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.1) 3px,rgba(0,0,0,.1) 4px);}
+        .sc-num{position:absolute;bottom:42px;left:20px;font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:2.5px;color:rgba(240,208,128,.87);}
+        .sc-name{position:absolute;bottom:16px;left:20px;font-size:10px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;color:rgba(245,245,245,.72);}
+        .sc-exp{position:absolute;bottom:16px;right:18px;text-align:right;}
+        .sc-expl{font-size:7px;color:rgba(245,245,245,.38);letter-spacing:1px;}
+        .sc-expv{font-size:11px;font-weight:600;color:rgba(240,208,128,.8);margin-top:1px;}
+
+        .splash-text{position:relative;z-index:2;text-align:center;padding:0 32px;}
+        .splash-logo{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;}
+        .splash-logo span{color:var(--gold);}
+        .splash-sub{font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:36px;}
+        .splash-btns{display:flex;flex-direction:column;gap:10px;width:100%;padding:0 32px;position:relative;z-index:2;}
+        .btn-gold{width:100%;padding:16px;background:linear-gradient(135deg,#c9a84c,#f0d080);color:#1a0a00;font-size:15px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(201,168,76,.35);transition:all .2s;}
+        .btn-gold:active{transform:scale(.97);}
+        .btn-outline{width:100%;padding:15px;background:none;border:1px solid rgba(201,168,76,.3);color:var(--gold);font-size:15px;font-weight:600;border-radius:var(--rs);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
+        .btn-outline:active{background:rgba(201,168,76,.07);}
+        .splash-hint{font-size:12px;color:var(--text3);text-align:center;margin-top:4px;position:relative;z-index:2;}
+
+        /* ──────── LOGIN SCREEN ──────── */
+        #login{background:var(--bg);}
+        .screen-header{background:radial-gradient(ellipse at 50% -10%,#1f0840 0%,#0a0418 50%,var(--bg) 100%);padding:20px 24px 30px;position:relative;overflow:hidden;}
+        .screen-header::before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;border:1px solid rgba(107,33,168,.18);top:50%;left:50%;transform:translate(-50%,-50%);animation:rpulse 3s ease-in-out infinite;}
+        .back-btn{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;margin-bottom:20px;position:relative;z-index:2;transition:all .2s;}
+        .back-btn:active{background:rgba(255,255,255,.1);}
+        .screen-logo{display:flex;align-items:center;gap:10px;position:relative;z-index:2;margin-bottom:6px;}
+        .slogo-i{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#c9a84c,#f0d080);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(201,168,76,.4);}
+        .slogo-t{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;}
+        .slogo-t span{color:var(--gold);}
+        .screen-title{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.5px;position:relative;z-index:2;margin-bottom:4px;}
+        .screen-sub{font-size:13px;color:var(--text2);position:relative;z-index:2;}
+        .form-body{padding:28px 24px;}
+        .fg{margin-bottom:16px;}
+        .fl{font-size:11.5px;font-weight:600;color:var(--text2);letter-spacing:.4px;margin-bottom:7px;display:block;}
+        .input-wrap{position:relative;}
+        .input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;pointer-events:none;color:var(--text2);}
+        .fi{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 14px 14px 44px;color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s, box-shadow .2s;}
+        .fi:focus{border-color:rgba(201,168,76,.45);box-shadow:0 0 0 3px rgba(201,168,76,.08);}
+        .fi::placeholder{color:var(--text3);}
+        .fi.no-icon{padding-left:14px;}
+        .pw-wrap{position:relative;}
+        .pw-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:17px;cursor:pointer;color:var(--text2);transition:color .2s;}
+        .pw-eye:active{color:var(--gold);}
+        .forgot{text-align:right;margin-top:-8px;margin-bottom:20px;font-size:12px;color:var(--gold);cursor:pointer;font-weight:500;}
+        .divider{display:flex;align-items:center;gap:12px;margin:22px 0;color:var(--text3);font-size:12px;}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border);}
+        .socials{display:flex;gap:10px;margin-bottom:24px;}
+        .soc-btn{flex:1;padding:13px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+        .soc-btn:active{background:var(--card2);}
+        .soc-icon{font-size:18px;}
+        .btn-purple{width:100%;padding:16px;background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;font-size:15px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 22px rgba(107,33,168,.42);transition:all .2s;}
+        .btn-purple:active{transform:scale(0.97);}
+
+        /* ──────── HOME SCREEN ──────── */
+        #s-home{background:var(--bg);}
+        .hero{background:radial-gradient(ellipse at 50% -20%,#2a0a50 0%,#0e0618 55%,var(--bg) 100%);padding:14px 20px 26px;position:relative;overflow:hidden;}
+        .hero::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;border:1px solid rgba(107,33,168,.2);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 3s ease-in-out infinite;}
+        @keyframes pulse{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1);}50%{opacity:.6;transform:translate(-50%,-50%) scale(1.05);}}
+        
+        .htop{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;position:relative;z-index:2;}
+        .greet-sub{font-size:11.5px;color:var(--text2);}
+        .greet-name{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;margin-top:2px;letter-spacing:-.3px;}
+        .hav{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#6b21a8,#9333ea);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid rgba(201,168,76,.4);box-shadow:0 0 14px rgba(107,33,168,.4);position:relative;z-index:2;}
+        
+        .cscene{perspective:800px;position:relative;z-index:2;}
+        .bcard{
+            width:100%;height:188px;border-radius:22px;
+            background:linear-gradient(135deg,#1a0a2e 0%,#2d1060 30%,#1a0a2e 55%,#0e0618 80%,#1f0b38 100%);
+            border:1px solid rgba(201,168,76,.38);box-shadow:0 0 50px rgba(107,33,168,.38),0 16px 50px rgba(0,0,0,.8),inset 0 1px 0 rgba(201,168,76,.16);
+            position:relative;overflow:hidden;animation:cfloat 5s ease-in-out infinite;cursor:pointer;
+        }
+        @keyframes cfloat{0%,100%{transform:rotateX(3deg) rotateY(-6deg) translateY(0);}45%{transform:rotateX(-2deg) rotateY(5deg) translateY(-8px);}70%{transform:rotateX(4deg) rotateY(-3deg) translateY(-4px);}}
+        .caura{position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(147,51,234,.26) 0%,transparent 70%);top:-70px;right:-45px;pointer-events:none;}
+        .caura2{position:absolute;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.11) 0%,transparent 70%);bottom:-30px;left:-10px;pointer-events:none;}
+        .cshine{position:absolute;inset:0;background:linear-gradient(125deg,transparent 0%,rgba(201,168,76,.05) 40%,rgba(255,255,255,.03) 50%,transparent 65%);pointer-events:none;}
+        .clogo{position:absolute;top:18px;left:20px;display:flex;align-items:center;gap:7px;}
+        .clogo-i{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#c9a84c,#f0d080);display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 10px rgba(201,168,76,.5);}
+        .clogo-t{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;color:#f0d080;text-shadow:0 0 14px rgba(240,208,128,.4);}
+        .cbrand{position:absolute;top:16px;right:18px;display:flex;}
+        .cbrand span{width:22px;height:22px;border-radius:50%;}
+        .cbrand span:first-child{background:rgba(201,168,76,.75);margin-right:-7px;}
+        .cbrand span:last-child{background:rgba(147,51,234,.75);}
+        .cchip{position:absolute;top:54px;left:20px;width:36px;height:26px;border-radius:5px;background:linear-gradient(135deg,#c9a84c,#f0d080,#a07030);overflow:hidden;}
+        .cchip::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.1) 3px,rgba(0,0,0,.1) 4px);}
+        .cnum{position:absolute;bottom:44px;left:20px;font-family:'Space Grotesk',sans-serif;font-size:13.5px;letter-spacing:2.5px;color:rgba(240,208,128,.87);}
+        .cname{position:absolute;bottom:18px;left:20px;font-size:11px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;color:rgba(245,245,245,.72);}
+        .cexp{position:absolute;bottom:18px;right:20px;text-align:right;}
+        .cexp-l{font-size:8px;color:rgba(245,245,245,.38);letter-spacing:1px;}
+        .cexp-v{font-size:12px;font-weight:600;color:rgba(240,208,128,.8);margin-top:1px;}
+
+        .balblock{padding:16px 20px 0;display:flex;align-items:flex-end;justify-content:space-between;}
+        .bal-lbl{font-size:10.5px;color:var(--text2);letter-spacing:.4px;text-transform:uppercase;}
+        .bal-amt{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;color:var(--gold);letter-spacing:-.5px;text-shadow:0 0 22px rgba(201,168,76,.28);margin-top:2px;}
+        .eye{width:36px;height:36px;border-radius:10px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;}
+
+        .pills{display:flex;gap:10px;padding:14px 20px 0;}
+        .pill{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:13px;}
+        .pill-i{font-size:17px;margin-bottom:5px;}
+        .pill-l{font-size:10.5px;color:var(--text2);}
+        .pill-v{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin-top:2px;}
+
+        /* AÇÕES RÁPIDAS HORIZONTAIS */
+        .qrow{display:flex;gap:12px;padding:20px 20px 10px;overflow-x:auto;}
+        .qrow::-webkit-scrollbar{display:none;}
+        .qbtn{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:62px;cursor:pointer;background:none;border:none;}
+        .qi{width:52px;height:52px;border-radius:16px;background:rgba(107,33,168,.14);border:1px solid rgba(147,51,234,.18);display:flex;align-items:center;justify-content:center;font-size:21px;transition:all .15s;color:var(--text);}
+        .qbtn:active .qi{transform:scale(.9);background:rgba(107,33,168,.26);}
+        .ql{font-size:11px;font-weight:600;color:var(--text2);}
+
+        .shdr{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 10px;}
+        .stitle{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;}
+        .slink{font-size:12px;color:var(--gold);font-weight:500;cursor:pointer;}
+
+        /* TRANSAÇÕES */
+        .txlist{padding:0 14px;display:flex;flex-direction:column;gap:2px;}
+        .txi{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:12px;cursor:pointer;transition:background .15s;}
+        .txi:active{background:var(--card);}
+        .txic{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+        .txin{flex:1;min-width:0;}
+        .txn{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .txm{font-size:11px;color:var(--text2);margin-top:2px;}
+        .txr{text-align:right;flex-shrink:0;}
+        .txa{font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:700;}
+        .txa.cr{color:var(--gold);} .txa.db{color:var(--rose);}
+        .txb{font-size:9px;font-weight:600;padding:2px 6px;border-radius:20px;margin-top:3px;display:inline-block;}
+        .bd{background:rgba(201,168,76,.1);color:var(--gold);} .bp{background:rgba(232,121,160,.1);color:var(--rose);}
+
+        /* SHEET MODAL */
+        .sovl{position:absolute;inset:0;background:rgba(0,0,0,.72);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;}
+        .sovl.open{opacity:1;pointer-events:all;}
+        .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--bg2);border-radius:24px 24px 0 0;padding:18px 20px 32px;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,0,.67,0);z-index:201;}
+        .sovl.open .sheet{transform:translateY(0);}
+        .shdl{width:34px;height:4px;background:var(--text3);border-radius:2px;margin:0 auto 18px;}
+        .shico{width:54px;height:54px;border-radius:50%;background:rgba(107,33,168,.14);border:2px solid rgba(147,51,234,.24);display:flex;align-items:center;justify-content:center;font-size:25px;margin:0 auto 12px;}
+        .shtit{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;text-align:center;margin-bottom:4px;}
+        .shsub{font-size:12.5px;color:var(--text2);text-align:center;margin-bottom:20px;}
+        .shbtns{display:flex;gap:9px;margin-top:4px;}
+        .bcnl{flex:1;padding:13px;background:none;border:1px solid var(--border);border-radius:var(--rs);color:var(--text2);font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+        .bconf{flex:1;padding:13px;background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;font-size:14px;font-weight:700;border:none;border-radius:var(--rs);cursor:pointer;font-family:'Inter',sans-serif;}
+
+        /* TOAST */
+        .toast{position:absolute;bottom:90px;left:14px;right:14px;background:var(--card2);border:1px solid rgba(201,168,76,.22);border-radius:14px;padding:12px 15px;display:flex;align-items:center;gap:9px;font-size:13px;font-weight:500;z-index:300;transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5);}
+        .toast.show{transform:translateY(0);opacity:1;}
+
+        .particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+        .particle, .pt{position:absolute;border-radius:50%;animation:fup linear infinite;opacity:0;}
+        @keyframes fup{0%{opacity:0;transform:translateY(0) scale(0);}10%{opacity:.55;}90%{opacity:.15;}100%{opacity:0;transform:translateY(-280px) scale(1.5);}}
+    </style>
+</head>
+<body>
+
+    <div class="shell">
+        <div class="notch"><div class="notch-cam"></div><div class="notch-spk"></div></div>
+
+        <div class="statusbar">
+            <span class="s-time" id="clk">09:41</span>
+            <div class="s-icons">
+                <span>▲▲▲</span><span>WiFi</span>
+                <div class="batt"><div class="batt-f"></div></div>
+            </div>
+        </div>
+
+        <div class="screens">
+
+            <div class="screen on" id="splash">
+                <div class="splash-bg"></div>
+                <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+                <div class="splash-card-wrap">
+                    <div class="splash-card">
+                        <div class="sc-aura"></div><div class="sc-aura2"></div><div class="sc-shine"></div>
+                        <div class="sc-logo"><div class="sc-logo-i">💎</div><span class="sc-logo-t">NexBank</span></div>
+                        <div class="sc-brand"><span></span><span></span></div>
+                        <div class="sc-chip"></div>
+                        <div class="sc-num">4892 •••• •••• 7741</div>
+                        <div class="sc-name">Lucas Costa</div>
+                        <div class="sc-exp"><div class="sc-expl">VÁLIDO ATÉ</div><div class="sc-expv">06/29</div></div>
+                    </div>
+                </div>
+                <div class="splash-text">
+                    <div class="splash-logo">Nex<span>Bank</span></div>
+                    <div class="splash-sub">Acesse uma infraestrutura de alta performance para o controle do seu patrimônio com segurança militar.</div>
+                </div>
+                <div class="splash-btns">
+                    <button class="btn-gold" onclick="navTo('login')">Acessar Conta Premium</button>
+                    <button class="btn-outline" onclick="showToast('Sistema de convites indisponível.')">Solicitar Cartão</button>
+                    <div class="splash-hint">Apenas para membros convidados</div>
+                </div>
+            </div>
+
+            <div class="screen" id="login">
+                <div class="screen-header">
+                    <div class="back-btn" onclick="navTo('splash')">←</div>
+                    <div class="screen-logo"><div class="slogo-i">💎</div><div class="slogo-t">Nex<span>Bank</span></div></div>
+                    <div class="screen-title">Bem-vindo</div>
+                    <div class="screen-sub">Identifique-se para acessar a sua conta.</div>
+                </div>
+                <div class="form-body">
+                    <div class="fg">
+                        <label class="fl">CONTA OU CPF</label>
+                        <div class="input-wrap">
+                            <span class="input-icon">👤</span>
+                            <input type="text" class="fi" id="login-user" placeholder="000.000.000-00">
+                        </div>
+                    </div>
+                    <div class="fg">
+                        <label class="fl">SENHA DIGITAL</label>
+                        <div class="pw-wrap">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" class="fi" id="login-pass" placeholder="••••••••">
+                        </div>
+                    </div>
+                    <div class="forgot">Esqueceu sua credencial?</div>
+                    <button class="btn-purple" onclick="efetuarLogin()">Desbloquear Conta</button>
+                    <div class="divider">OU CONECTAR COM</div>
+                    <div class="socials">
+                        <div class="soc-btn" onclick="showToast('FaceID Ativo. Olhe para a câmera.')"><span class="soc-icon">👤</span> FaceID</div>
+                        <div class="soc-btn" onclick="showToast('Chave de segurança física indisponível.')"><span class="soc-icon">🔑</span> Chave Fís.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="screen" id="s-home">
+                <div class="hero">
+                    <div class="particles" id="pts"></div>
+                    <div class="htop">
+                        <div><div class="greet-sub">Bem-vindo de volta 👋</div><div class="greet-name">Lucas Costa</div></div>
+                        <div class="hav" onclick="navTo('splash')">LC</div>
+                    </div>
+                    <div class="cscene">
+                        <div class="bcard" id="mc">
+                            <div class="caura"></div><div class="caura2"></div><div class="cshine"></div>
+                            <div class="clogo"><div class="clogo-i">💎</div><span class="clogo-t">NexBank</span></div>
+                            <div class="cbrand"><span></span><span></span></div>
+                            <div class="cchip"></div>
+                            <div class="cnum">4892 •••• •••• 7741</div>
+                            <div class="cname">Lucas Costa</div>
+                            <div class="cexp"><div class="cexp-l">VÁLIDO ATÉ</div><div class="cexp-v">06/29</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="balblock">
+                    <div><div class="bal-lbl">Saldo disponível</div><div class="bal-amt" id="bdisp">R$ 14.850,00</div></div>
+                    <div class="eye" id="eyb" onclick="toggleSaldoVisibilidade()">👁️</div>
+                </div>
+
+                <div class="pills">
+                    <div class="pill"><div class="pill-i">💹</div><div class="pill-l">Entradas</div><div class="pill-v" style="color:var(--gold)">R$ 8.500</div></div>
+                    <div class="pill"><div class="pill-i">💸</div><div class="pill-l">Saídas</div><div class="pill-v" style="color:var(--rose)">R$ 6.200</div></div>
+                </div>
+
+                <div class="qrow">
+                    <button class="qbtn" onclick="realizarPix()">
+                        <div class="qi">⚡</div><span class="ql">Pix</span>
+                    </button>
+                    <button class="qbtn" onclick="realizarDeposito()">
+                        <div class="qi">💵</div><span class="ql">Depósito</span>
+                    </button>
+                    <button class="qbtn" onclick="realizarPix()">
+                        <div class="qi">⇄</div><span class="ql">Enviar</span>
+                    </button>
+                    <button class="qbtn" onclick="showToast('Comprovantes consolidados exportados.')">
+                        <div class="qi">📄</div><span class="ql">Extrato</span>
+                    </button>
+                    <button class="qbtn" onclick="showToast('Cartão temporariamente bloqueado.')">
+                        <div class="qi">🔒</div><span class="ql">Bloquear</span>
+                    </button>
+                </div>
+
+                <div class="shdr">
+                    <div class="stitle">Últimas Atividades</div>
+                    <div class="slink" onclick="showToast('Histórico completo carregado.')">Ver histórico</div>
+                </div>
+
+                <div class="txlist">
+                    <div class="txi">
+                        <div class="txic" style="background:rgba(201,168,76,0.1)">⚡</div>
+                        <div class="txin"><div class="txn">PIX Recebido — Google LLC</div><div class="txm">Hoje, 14:22</div></div>
+                        <div class="txr"><div class="txa cr">+ R$ 350,00</div><div class="txb bd">Crédito</div></div>
+                    </div>
+                    <div class="txi">
+                        <div class="txic" style="background:rgba(232,121,160,0.1)">🛍️</div>
+                        <div class="txin"><div class="txn">Apple Store Premium</div><div class="txm">Ontem, 19:05</div></div>
+                        <div class="txr"><div class="txa db">- R$ 5.499,00</div><div class="txb bp">Débito</div></div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <div class="bnav" id="main-nav" style="display:none;">
+            <div class="ntab on" onclick="showToast('Você já está na aba principal.')"><div class="ntab-i">🏠</div><div class="ntab-l">Início</div><div class="ntab-d"></div></div>
+            <div class="ntab" onclick="showToast('Aba de investimentos indisponível.')"><div class="ntab-i">📈</div><div class="ntab-l">Mercado</div><div class="ntab-d"></div></div>
+            <div class="ntab" onclick="showToast('Painel de cartões adicionais indisponível.')"><div class="ntab-i">💳</div><div class="ntab-l">Cartões</div><div class="ntab-d"></div></div>
+        </div>
+    </div> <div class="sovl" id="modal-sheet">
+        <div class="sheet">
+            <div class="shdl"></div>
+            <div class="shico" id="sheet-icon">⚡</div>
+            <div class="shtit" id="sheet-title">Operação Bancária</div>
+            <div class="shsub" id="sheet-sub">Insira o valor da transação abaixo.</div>
+            <div class="shform">
+                <input type="number" class="fi no-icon" style="text-align:center;font-size:24px;font-weight:700;" placeholder="R$ 0,00">
+                <div class="shbtns">
+                    <button class="bcnl" onclick="closeSheet()">Cancelar</button>
+                    <button class="bconf" onclick="confirmarOperacao()">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="glb-toast">
+        <span>ℹ️</span><span id="toast-msg">Mensagem padrão da conta</span>
+    </div>
+
+    <script type="module" src="src/js/script.js"></script>
+</body>
+</html>
