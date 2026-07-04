@@ -154,6 +154,12 @@ http://localhost:5174
 
 ---
 
+## 🚀 Próximos Passos (Roadmap)
+
+O projeto está em constante evolução. As próximas melhorias planejadas são:
+* [ ] Migração/Integração de serviços específicos para o **MongoDB (NoSQL)** para armazenamento de logs ou histórico flexível de transações.
+* [ ] Implementação de novos testes automatizados nas rotas do Back-End.
+
 ## 👩‍💻 Autora
 
 Desenvolvido com 💜 como projeto pessoal para aprimoramento em desenvolvimento back-end.
